@@ -86,7 +86,13 @@
       <button>Trigger a Global Error</button>
     </section>
   </main>
-
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS && TrackJS.install({
+      token: "540fcf5cd4f54678a817d4adbb07d537"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+  </script>
   <script>
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
@@ -164,26 +170,38 @@
       }, false);
     });
     form.addEventListener('submit', e => {
-  e.preventDefault();
-  let output = document.querySelector('output');
-  let firstNum = document.querySelector('#first-num').value;
-  let secondNum = document.querySelector('#second-num').value;
-  let operator = document.querySelector('#operator').value;
+      e.preventDefault();
+      let output = document.querySelector('output');
+      let firstNum = document.querySelector('#first-num').value;
+      let secondNum = document.querySelector('#second-num').value;
+      let operator = document.querySelector('#operator').value;
 
-  try {
-    let result = eval(`${firstNum} ${operator} ${secondNum}`);
-    if (isNaN(result)) throw new Error("Computation resulted in NaN");
-    output.textContent = result;
-  } catch (err) {
-    console.error("Caught an error during calculation:", err);
-    output.textContent = "Error: Invalid input.";
-  } finally {
-    console.log("Calculation attempted");
-  }
-});
+      try {
+        let result = eval(`${firstNum} ${operator} ${secondNum}`);
+        if (isNaN(result)) throw new InvalidInputError("Computation resulted in NaN");
+        output.textContent = result;
+      } catch (err) {
+        console.error("Caught an error during calculation:", err);
+        output.textContent = err instanceof InvalidInputError ? err.message : "Error: Invalid input.";
+      } finally {
+        console.log("Calculation attempted");
+      }
+    });
 
-    // Start your code here
-    // You may move this JS to another file if you wish
+
+    class InvalidInputError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "InvalidInputError";
+      }
+    }
+    window.addEventListener("error", function (event) {
+      console.log("Global error caught:");
+      console.log("Message:", event.message);
+      console.log("Source:", event.filename);
+      console.log("Line:", event.lineno);
+    });
+
   </script>
 </body>
 
